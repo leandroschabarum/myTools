@@ -33,7 +33,7 @@ if [[ ! -d "$BASE_DIR" ]]; then
 fi
 
 if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]; then
-	"$PYTHON" -m venv "$VENV_DIRNAME"
+	`"$PYTHON" -m venv "$VENV_DIRNAME"`
 	if[[ $? != 0 ]]; then
 		echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
 		exit 1
@@ -54,7 +54,7 @@ if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]; then
 	fi
 fi
 
-"$BASE_DIR/$VENV_DIRNAME/bin/pip" install -r requirements.txt
+`"$BASE_DIR/$VENV_DIRNAME/bin/pip" install -r requirements.txt`
 
 if[[ $? != 0 ]]; then
 	echo "< unable to set up python dependencies >" >> "$LOG_FILE"
