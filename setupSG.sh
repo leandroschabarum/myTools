@@ -33,6 +33,9 @@ then
 	if [[ $? != 0 ]]
 	then
 		echo "< unable to create $BASE_DIR >" >> "$LOG_FILE"
+	else
+		chmod 700 "$BASE_DIR"
+		chown root:root "$BASE_DIR"
 	fi
 fi
 
@@ -62,38 +65,37 @@ then
 		echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
 	fi
 fi
-
+#---- NEEDS REVISION ----#
+`$BASE_DIR/$VENV_DIRNAME/bin/python -m pip install --upgrade pip`  # change strategy for checking dependencies
 `$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt"`
-
-if [[ $? != 0 ]]
+if [[ $? != 0 ]]  # change strategy for checking dependencies - checksum
 then
 	echo "< unable to set up python dependencies >" >> "$LOG_FILE"
 fi
-
-
+#------------------------#
 if [[ ! -f "$BASE_DIR/$CONF_FILE" ]]
 then
-	touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]" > "$BASE_DIR/$CONF_FILE"
+	touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
 	if [[ $? != 0 ]]
 	then
 		echo "< unable to create $BASE_DIR/$CONF_FILE >"
 		exit 1
 	else
-		printf "token = " >> "$BASE_DIR/$CONF_FILE"
-		printf "chatid = " >> "$BASE_DIR/$CONF_FILE"
+		printf "token = \n" >> "$BASE_DIR/$CONF_FILE"
+		printf "chatid = \n" >> "$BASE_DIR/$CONF_FILE"
 		chmod 600 "$BASE_DIR/$CONF_FILE"
 		chown root:root "$BASE_DIR/$CONF_FILE"
 	fi
 fi
 
 echo "< information is being written to $BASE_DIR/$CONF_FILE >"
-printf "[TELEGRAM_chat_info]" > "$BASE_DIR/$CONF_FILE"
+printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
 
 read -p "...telegram bot Token />_ " token
-printf "token = %s" "$token" >> "$BASE_DIR/$CONF_FILE"
+printf "token = %s\n" "$token" >> "$BASE_DIR/$CONF_FILE"
 
 read -p ".....telegram chat id />_ " chatid
-printf "chatid = %s" "$chatid" >> "$BASE_DIR/$CONF_FILE"
+printf "chatid = %s\n" "$chatid" >> "$BASE_DIR/$CONF_FILE"
 
 if [[ "$token" != "" && "$chatid" != "" ]]
 then
