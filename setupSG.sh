@@ -30,39 +30,40 @@ if [[ ! -d "$BASE_DIR" ]]; then
 
 	if [[ $? != 0 ]]; then
 		echo "< unable to create $BASE_DIR >" >> "$LOG_FILE"
-	else
-
-		if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]; then
-			"$PYTHON" "-m venv venv"
-
-			if[[ $? != 0 ]]; then
-				echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
-			else
-				read -p ".....source directory />_ " sourcedir
-
-				if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]; then
-					ln -s "$sourcedir/teleAlerts.py" "$BASE_DIR"
-
-					if [[ $? != 0 ]]; then
-						echo "< no file $sourcedir/teleAlerts.py found >" >> "$LOG_FILE"
-					fi
-
-					ln -s "$sourcedir/requirements.txt" "$BASE_DIR"
-
-					if [[ $? != 0 ]]; then
-						echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
-					fi
-				fi
-
-				"$BASE_DIR/$VENV_DIRNAME/bin/pip" "install -r requirements.txt"
-
-				if[[ $? != 0 ]]; then
-					echo "< unable to set up python dependencies >" >> "$LOG_FILE"
-				fi
-			fi
-		fi
 	fi
 fi
+
+if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]; then
+	"$PYTHON" "-m venv venv"
+
+	if[[ $? != 0 ]]; then
+		echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
+		exit 1
+	fi
+fi
+
+read -p ".....source directory />_ " sourcedir
+
+if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]; then
+	ln -s "$sourcedir/teleAlerts.py" "$BASE_DIR"
+
+	if [[ $? != 0 ]]; then
+		echo "< no file $sourcedir/teleAlerts.py found >" >> "$LOG_FILE"
+	fi
+
+	ln -s "$sourcedir/requirements.txt" "$BASE_DIR"
+
+	if [[ $? != 0 ]]; then
+		echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
+	fi
+fi
+
+"$BASE_DIR/$VENV_DIRNAME/bin/pip" "install -r requirements.txt"
+
+if[[ $? != 0 ]]; then
+	echo "< unable to set up python dependencies >" >> "$LOG_FILE"
+fi
+
 
 if [[ ! -f "$BASE_DIR/$CONF_FILE" ]]; then
 	touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]" > "$BASE_DIR/$CONF_FILE"
