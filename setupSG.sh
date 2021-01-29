@@ -65,14 +65,17 @@ then
 		echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
 	fi
 fi
-#---- NEEDS REVISION ----#
-`$BASE_DIR/$VENV_DIRNAME/bin/python -m pip install --upgrade pip`  # change strategy for checking dependencies
+
 `$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt"`
-if [[ $? != 0 ]]  # change strategy for checking dependencies - checksum
+`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
+hash=$(md5sum "$BASE_DIR/installed.txt" | cut -d ' ' -f 1)
+rm -f "$BASE_DIR/installed.txt"
+
+if [[ "$hash" !=  "$(md5sum "$BASE_DIR/requirements.txt"  | cut -d ' ' -f 1)" ]]
 then
-	echo "< unable to set up python dependencies >" >> "$LOG_FILE"
+	echo "< python dependencies differ from source >" >> "$LOG_FILE"
 fi
-#------------------------#
+
 if [[ ! -f "$BASE_DIR/$CONF_FILE" ]]
 then
 	touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
