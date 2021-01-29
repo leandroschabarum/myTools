@@ -27,15 +27,13 @@ fi
 
 if [[ ! -d "$BASE_DIR" ]]; then
 	mkdir "$BASE_DIR"
-
 	if [[ $? != 0 ]]; then
 		echo "< unable to create $BASE_DIR >" >> "$LOG_FILE"
 	fi
 fi
 
 if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]; then
-	"$PYTHON" "-m venv venv"
-
+	"$PYTHON" -m venv "$VENV_DIRNAME"
 	if[[ $? != 0 ]]; then
 		echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
 		exit 1
@@ -46,19 +44,17 @@ read -p ".....source directory />_ " sourcedir
 
 if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]; then
 	ln -s "$sourcedir/teleAlerts.py" "$BASE_DIR"
-
 	if [[ $? != 0 ]]; then
 		echo "< no file $sourcedir/teleAlerts.py found >" >> "$LOG_FILE"
 	fi
 
 	ln -s "$sourcedir/requirements.txt" "$BASE_DIR"
-
 	if [[ $? != 0 ]]; then
 		echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
 	fi
 fi
 
-"$BASE_DIR/$VENV_DIRNAME/bin/pip" "install -r requirements.txt"
+"$BASE_DIR/$VENV_DIRNAME/bin/pip" install -r requirements.txt
 
 if[[ $? != 0 ]]; then
 	echo "< unable to set up python dependencies >" >> "$LOG_FILE"
@@ -89,7 +85,6 @@ printf "chatid = %s" "$chatid" >> "$BASE_DIR/$CONF_FILE"
 
 if [[ "$token" != "" && "$chatid" != "" ]]; then
 	echo "< setup finished succesfully >" | "$BASE_DIR/$VENV_DIRNAME/bin/python" "$BASE_DIR/teleAlerts.py"
-
 	if [[ $? != 0 ]]; then
 		NOW=$(date +"%d%m%Y - %H%M%S")
 		echo "$NOW />_ UNABLE TO SEND TEST MESSAGE - setup failed" >> "$LOG_FILE"
