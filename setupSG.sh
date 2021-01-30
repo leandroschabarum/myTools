@@ -7,110 +7,119 @@
 # Contact: leandro.schabarum@renovaretelecom.com.br        #
 ############################################################
 
-PYTHON="python3.8"  # check python executable to match required version
-VENV_DIRNAME="venv"  # default virtual enviroment name
-CONF_FILE="alerts.conf"  # default .conf file name
-BASE_DIR="/dev/sentinelGoblin"  # default base directory path
-LOG_FILE="/var/log/sentinelGoblin.log"  # default log file path
-
-
-if [[ ! -f "$LOG_FILE" ]]
+if [[ "$(id -u)" == "0" ]]
 then
-	touch "$LOG_FILE"
-	if [[ $? != 0 ]]
-	then
-		echo "< unable to create $LOG_FILE >"
-		exit 1
-	else
-		chmod 640 "$LOG_FILE"
-		chown root:root "$LOG_FILE"
-	fi
-fi
+	PYTHON="python3.8"  # check python executable to match required version
 
-if [[ ! -d "$BASE_DIR" ]]
-then
-	mkdir "$BASE_DIR"
-	if [[ $? != 0 ]]
-	then
-		echo "< unable to create $BASE_DIR >" >> "$LOG_FILE"
-	else
-		chmod 700 "$BASE_DIR"
-		chown root:root "$BASE_DIR"
-	fi
-fi
+	# ------------ default install paths and folders ------------ #
+	BASE_DIR="/opt/sentinelGoblin"
+	LOG_FILE="/var/log/sentinelGoblin.log"
+	VENV_DIRNAME="venv"  # python virtual enviroment folder name
+	CONF_FILE="gold.conf"  # configuration file name
+	# ----------------------------------------------------------- #
 
-if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]
-then
-	`$PYTHON -m venv "$BASE_DIR/$VENV_DIRNAME"`
-	if [[ $? != 0 ]]
+	if [[ ! -f "$LOG_FILE" ]]
 	then
-		echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
-		exit 1
-	fi
-fi
-
-read -p ".....source directory />_ " sourcedir
-
-if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]
-then
-	ln -s "$sourcedir/teleAlerts.py" "$BASE_DIR"
-	if [[ $? != 0 ]]
-	then
-		echo "< no file $sourcedir/teleAlerts.py found >" >> "$LOG_FILE"
+		touch "$LOG_FILE"
+		if [[ $? != 0 ]]
+		then
+			echo "< unable to create $LOG_FILE >"
+			exit 1
+		else
+			chmod 640 "$LOG_FILE"
+			chown root:root "$LOG_FILE"
+		fi
 	fi
 
-	ln -s "$sourcedir/requirements.txt" "$BASE_DIR"
-	if [[ $? != 0 ]]
+	if [[ ! -d "$BASE_DIR" ]]
 	then
-		echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
+		mkdir "$BASE_DIR"
+		if [[ $? != 0 ]]
+		then
+			echo "< unable to create $BASE_DIR >" >> "$LOG_FILE"
+		else
+			chmod 700 "$BASE_DIR"
+			chown root:root "$BASE_DIR"
+		fi
 	fi
-fi
 
-`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt"`
-`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
-hash=$(md5sum "$BASE_DIR/installed.txt" | cut -d ' ' -f 1)
-rm -f "$BASE_DIR/installed.txt"
-
-if [[ "$hash" !=  "$(md5sum "$BASE_DIR/requirements.txt"  | cut -d ' ' -f 1)" ]]
-then
-	echo "< python dependencies differ from source >" >> "$LOG_FILE"
-fi
-
-if [[ ! -f "$BASE_DIR/$CONF_FILE" ]]
-then
-	touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
-	if [[ $? != 0 ]]
+	if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]
 	then
-		echo "< unable to create $BASE_DIR/$CONF_FILE >"
-		exit 1
-	else
-		printf "token = \n" >> "$BASE_DIR/$CONF_FILE"
-		printf "chatid = \n" >> "$BASE_DIR/$CONF_FILE"
-		chmod 600 "$BASE_DIR/$CONF_FILE"
-		chown root:root "$BASE_DIR/$CONF_FILE"
+		`$PYTHON -m venv "$BASE_DIR/$VENV_DIRNAME"`
+		if [[ $? != 0 ]]
+		then
+			echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
+			exit 1
+		fi
 	fi
-fi
 
-echo "< information is being written to $BASE_DIR/$CONF_FILE >"
-printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
+	read -p ".....source directory />_ " sourcedir
 
-read -p "...telegram bot Token />_ " token
-printf "token = %s\n" "$token" >> "$BASE_DIR/$CONF_FILE"
-
-read -p ".....telegram chat id />_ " chatid
-printf "chatid = %s\n" "$chatid" >> "$BASE_DIR/$CONF_FILE"
-
-if [[ "$token" != "" && "$chatid" != "" ]]
-then
-	echo "< setup finished succesfully >" | "$BASE_DIR/$VENV_DIRNAME/bin/python" "$BASE_DIR/teleAlerts.py"
-	if [[ $? != 0 ]]
+	if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]
 	then
-		NOW=$(date +"%d%m%Y - %H%M%S")
-		echo "$NOW />_ UNABLE TO SEND TEST MESSAGE - setup failed" >> "$LOG_FILE"
-		exit 1
-	else
-		echo "< confirmation message sent >"
+		ln -s "$sourcedir/teleAlerts.py" "$BASE_DIR"
+		if [[ $? != 0 ]]
+		then
+			echo "< no file $sourcedir/teleAlerts.py found >" >> "$LOG_FILE"
+		fi
+
+		ln -s "$sourcedir/requirements.txt" "$BASE_DIR"
+		if [[ $? != 0 ]]
+		then
+			echo "< no file $sourcedir/requirements.txt found >" >> "$LOG_FILE"
+		fi
 	fi
+
+	`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt"`
+	`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
+	hash=$(sha256sum "$BASE_DIR/installed.txt" | cut -d ' ' -f 1)
+	rm -f "$BASE_DIR/installed.txt"
+
+	if [[ "$hash" !=  "$(sha256sum "$BASE_DIR/requirements.txt"  | cut -d ' ' -f 1)" ]]
+	then
+		echo "< python dependencies differ from source >" >> "$LOG_FILE"
+	fi
+
+	if [[ ! -f "$BASE_DIR/$CONF_FILE" ]]
+	then
+		touch "$BASE_DIR/$CONF_FILE" && printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
+		if [[ $? != 0 ]]
+		then
+			echo "< unable to create $BASE_DIR/$CONF_FILE >"
+			exit 1
+		else
+			printf "token = \n" >> "$BASE_DIR/$CONF_FILE"
+			printf "chatid = \n" >> "$BASE_DIR/$CONF_FILE"
+			chmod 600 "$BASE_DIR/$CONF_FILE"
+			chown root:root "$BASE_DIR/$CONF_FILE"
+		fi
+	fi
+
+	echo "< information is being written to $BASE_DIR/$CONF_FILE >"
+	printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
+
+	read -p "...telegram bot Token />_ " token
+	printf "token = %s\n" "$token" >> "$BASE_DIR/$CONF_FILE"
+
+	read -p ".....telegram chat id />_ " chatid
+	printf "chatid = %s\n" "$chatid" >> "$BASE_DIR/$CONF_FILE"
+
+	if [[ "$token" != "" && "$chatid" != "" ]]
+	then
+		echo "< setup finished succesfully >" | "$BASE_DIR/$VENV_DIRNAME/bin/python" "$BASE_DIR/teleAlerts.py"
+		if [[ $? != 0 ]]
+		then
+			NOW=$(date +"%d%m%Y - %H%M%S")
+			echo "$NOW />_ UNABLE TO SEND TEST MESSAGE - setup failed" >> "$LOG_FILE"
+			exit 1
+		else
+			echo "< confirmation message sent >"
+		fi
+	fi
+
+	exit 0
+else
+	echo ">>>> EXECUTION DENIED - ROOT ACCESS REQUIRED <<<<"
 fi
 
-exit 0
+exit 1
