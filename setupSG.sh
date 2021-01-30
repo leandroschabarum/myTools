@@ -45,7 +45,7 @@ then
 
 	if [[ ! -d "$BASE_DIR/$VENV_DIRNAME" ]]
 	then
-		`$PYTHON -m venv "$BASE_DIR/$VENV_DIRNAME"`
+		`$PYTHON -m venv "$BASE_DIR/$VENV_DIRNAME" > /dev/null 2>&1`
 		if [[ $? != 0 ]]
 		then
 			echo "< unable to create $BASE_DIR/$VENV_DIRNAME >" >> "$LOG_FILE"
@@ -70,7 +70,7 @@ then
 		fi
 	fi
 
-	`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt"`
+	`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt" > /dev/null 2>&1`
 	`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
 	hash=$(sha256sum "$BASE_DIR/installed.txt" | cut -d ' ' -f 1)
 	rm -f "$BASE_DIR/installed.txt"
