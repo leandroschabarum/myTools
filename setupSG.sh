@@ -115,7 +115,12 @@ then
 		else
 			echo "< confirmation message sent >"
 		fi
+	else
+		echo "< telegram bot information can be altered later at $BASE_DIR/$CONF_FILE >"
 	fi
+
+	# add running sentinelGoblin command #
+	# add command to crontab with check for already running sentinelGoblin #
 
 	exit 0
 else
