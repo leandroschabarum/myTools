@@ -32,15 +32,18 @@ then
 	}
 
 	function createLOG() {
-		touch "$LOG_FILE"
-		if [[ $? != 0 ]]
+		if [[ ! -f "$LOG_FILE" ]]
 		then
-			echo "< unable to create $LOG_FILE >"
-			return 1
-		else
-			chmod 640 "$LOG_FILE"
-			chown root:root "$LOG_FILE"
-			return 0
+			touch "$LOG_FILE"
+			if [[ $? != 0 ]]
+			then
+				echo "< unable to create $LOG_FILE >"
+				return 1
+			else
+				chmod 640 "$LOG_FILE"
+				chown root:root "$LOG_FILE"
+				return 0
+			fi
 		fi
 	}
 
@@ -67,6 +70,19 @@ then
 		fi
 	}
 
+	function genFILE () {
+		# genFILE "command" "output.txt" #
+		# True : ok | False : failed     #
+		`"$1" > "$2"`
+		if [[ $? != 0 ]]
+		then
+			alert "FAILED: $1 > $2"
+			return 1
+		else
+			return 0
+		fi
+	}
+
 	filename_HASH=$(sha256sum "filename" | cut -d ' ' -f 1)
 
 	function checkSUM () {
@@ -83,18 +99,6 @@ then
 		fi
 	}
 
-	function genFILE () {
-		# genFILE "command" "output.txt" #
-		# True : ok | False : failed     #
-		`"$1" > "$2"`
-		if [[ $? != 0 ]]
-		then
-			alert "FAILED: $1 > $2"
-			return 1
-		else
-			return 0
-		fi
-	}
 
 	while true
 	do
