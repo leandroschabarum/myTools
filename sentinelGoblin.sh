@@ -120,19 +120,34 @@ then
 	}
 
 
-	LOGGED_IN=$(who | sha256sum | cut -d ' ' -f 1)
+	LOGGED=$(who | sha256sum | cut -d ' ' -f 1)
+	FIREWALL=$(iptables -L | sha256sum | cut -d ' ' -f 1)
+	PORTS=$(sudo netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
 
 	while true
 	do
 		logRITUAL
-		# check routine #
-		# iptables -L > firewallRules.txt #
-		
-		OUTPUT=$(checkSUMcommand "$LOGGED_IN" "who")
+
+		# check routines #
+		HASH=$(checkSUMcommand "$LOGGED" "who")
 		if [ $? == 0 ]
 		then
-			alert "test - access changes"
-			LOGGED_IN=$OUTPUT
+			alert "$(tail -1 /var/log/auth.log)"
+			LOGGED=$HASH
+		fi
+
+		HASH=$(checkSUMcommand "$FIREWALL" "iptables -L")
+		if [ $? == 0 ]
+		then
+			alert "Firewall rules were changed"
+			FIREWALL=$HASH
+		fi
+		
+		HASH=$(checkSUMcommand "$PORTS" "sudo netstat -tulpn | grep LISTEN")
+		if [ $? == 0 ]
+		then
+			alert "Listening Ports changed"
+			PORTS=$HASH
 		fi
 
 		sleep 1
