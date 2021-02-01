@@ -15,8 +15,7 @@ then
 
 	if [[ "$PID_FLAG" == "" ]]
 	then
-		nohup bash "$BASE_DIR/sentinelGoblin.sh" >> "$BASE_DIR/.sgpid" 2>&1 &
-		echo "/>_ nohup exit: $?" # DEBUG LINE
+		nohup bash "$BASE_DIR/sentinelGoblin.sh" > /dev/null 2>&1 &
 		if [[ $? == 0 ]]
 		then
 			PID=$(pgrep -lf ".[ /]sentinelGoblin.sh( |\$)" | cut -d ' ' -f 1)

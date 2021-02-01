@@ -76,8 +76,8 @@ then
 			mkdir "$BASE_DIR/cave" > /dev/null 2>&1
 			if [[ $? == 0 ]]
 			then
-				chmod 700 "$BASE_DIR"
-				chown root:root "$BASE_DIR"
+				chmod 700 "$$BASE_DIR/cave"
+				chown root:root "$$BASE_DIR/cave"
 			fi
 		fi
 
@@ -93,8 +93,9 @@ then
 
 	function dif() {
 		# dif "_new.txt" "_old.txt" #
-		echo "$(diff --changed-group-format='%<' --unchanged-group-format='' $1 $2)"
+		local TEMPDIF="$(diff --changed-group-format='%<' --unchanged-group-format='' $1 $2)"
 		mv "$BASE_DIR/cave/$1" "$BASE_DIR/cave/$2"
+		echo "$TEMPDIF"
 	}
 
 	function checkSUMfile () {
