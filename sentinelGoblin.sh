@@ -18,6 +18,7 @@ then
 	VENV_DIRNAME="venv"  # python virtual enviroment folder name
 	CONF_FILE="gold.conf"  # configuration file name
 	# ----------------------------------------------------------- #
+	echo "$! - sentinelGoblin.sh" > "$BASE_DIR/.sgpid"
 
 	function alert() {
 		echo "$1" | "$BASE_DIR/$VENV_DIRNAME/bin/python" "$BASE_DIR/teleAlerts.py"
@@ -139,5 +140,6 @@ then
 			LOGGED_IN=$OUTPUT
 		fi
 
+		sleep 1
 	done
 fi
