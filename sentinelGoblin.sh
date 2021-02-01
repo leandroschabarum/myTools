@@ -129,10 +129,10 @@ then
 	LOGGED=$(who | sha256sum | cut -d ' ' -f 1)
 
 	FIREWALL=$(iptables -L | sha256sum | cut -d ' ' -f 1)
-	genFILE "iptables -L" "firewall_old.txt"
+	genFILE "iptables -L" "firewall.txt"
 
 	OPENPORTS=$(netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
-	genFILE "netstat -tulpn | grep LISTEN" "openports_old.txt"
+	genFILE "netstat -tulpn | grep LISTEN" "openports.txt"
 
 	while true
 	do
@@ -150,8 +150,8 @@ then
 		if [ $? == 0 ]
 		then
 			genFILE "iptables -L" "firewall_new.txt"
-			CHANGES=$(dif "firewall_new.txt" "firewall_old.txt")
-			alert "Firewall rules were changed:\n$CHANGES"
+			CHANGES=$(dif "firewall_new.txt" "firewall.txt")
+			alert "Firewall rules were changed: $CHANGES"
 			FIREWALL=$HASH
 		fi
 		
@@ -159,8 +159,8 @@ then
 		if [ $? == 0 ]
 		then
 			genFILE "netstat -tulpn | grep LISTEN" "openports_new.txt"
-			CHANGES=$(dif "openports_new.txt" "openports_old.txt")
-			alert "Listening Ports changed:\n$CHANGES"
+			CHANGES=$(dif "openports_new.txt" "openports.txt")
+			alert "Listening Ports changed: $CHANGES"
 			OPENPORTS=$HASH
 		fi
 
