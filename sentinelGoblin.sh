@@ -96,13 +96,13 @@ then
 	# filename_HASH=$(sha256sum "filename" | cut -d ' ' -f 1)
 
 	function checkSUMfile () {
-		# checkSUM filename_HASH "/path/filename" #
+		# checkSUM "$HASH" "/path/filename" #
 		# True : changed | False : no changes     #
 		local TEMP_HASH=$(sha256sum "$2" | cut -d ' ' -f 1)
 
 		if [[ "$TEMP_HASH" != "$1" ]]
 		then
-			$1=$(sha256sum "$2" | cut -d ' ' -f 1)
+			echo "$TEMP_HASH"
 			return 0
 		else
 			return 1
@@ -110,13 +110,13 @@ then
 	}
 
 	function checkSUMcommand () {
-		# checkSUM command_HASH "command" #
+		# checkSUM "$HASH" "command" #
 		# True : changed | False : no changes     #
 		local TEMP_HASH=$("$2" | sha256sum | cut -d ' ' -f 1)
 
 		if [[ "$TEMP_HASH" != "$1" ]]
 		then
-			$1=$("$2" | sha256sum | cut -d ' ' -f 1)
+			echo "$TEMP_HASH"
 			return 0
 		else
 			return 1
@@ -132,9 +132,11 @@ then
 		# check routine #
 		# iptables -L > firewallRules.txt #
 		# who > LOGGED_IN.txt #
-		if [ $(checkSUMcommand LOGGED_IN "who") ]
+		OUTPUT=$(checkSUMcommand "$LOGGED_IN" "who")
+		if [ $? == 0 ]
 		then
 			alert "test - access changes"
+			LOGGED_IN=$OUTPUT
 		fi
 
 	done
