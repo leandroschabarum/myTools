@@ -81,7 +81,7 @@ then
 			fi
 		fi
 
-		$1 > "$BASE_DIR/cave/$2"
+		`"$1" > "$BASE_DIR/cave/$2"`
 		if [[ $? != 0 ]]
 		then
 			alert "FAILED: $1 > $2"
@@ -114,7 +114,7 @@ then
 	function checkSUMcommand () {
 		# checkSUM "$HASH" "command" #
 		# True : changed | False : no changes     #
-		local TEMP_HASH=$("$2" | sha256sum | cut -d ' ' -f 1)
+		local TEMP_HASH=$($2 | sha256sum | cut -d ' ' -f 1)
 
 		if [[ "$TEMP_HASH" != "$1" ]]
 		then
