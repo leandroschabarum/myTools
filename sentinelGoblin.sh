@@ -94,7 +94,7 @@ then
 	function dif() {
 		# dif "_new.txt" "_old.txt" #
 		echo "$(diff --changed-group-format='%<' --unchanged-group-format='' $1 $2)"
-		mv "$1" "$2"
+		mv "$BASE_DIR/cave/$1" "$BASE_DIR/cave/$2"
 	}
 
 	function checkSUMfile () {
