@@ -125,6 +125,5 @@ then
 	exit 0
 else
 	echo ">>>> EXECUTION DENIED - ROOT ACCESS REQUIRED <<<<"
+	exit 1
 fi
-
-exit 1

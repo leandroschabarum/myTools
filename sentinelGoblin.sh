@@ -73,7 +73,17 @@ then
 	function genFILE () {
 		# genFILE "command" "output.txt" #
 		# True : ok | False : failed     #
-		`"$1" > "$2"`
+		if [[ ! -d "$BASE_DIR/cave" ]]
+		then
+			mkdir "$BASE_DIR/cave" > /dev/null 2>&1
+			if [[ $? == 0 ]]
+			then
+				chmod 700 "$BASE_DIR"
+				chown root:root "$BASE_DIR"
+			fi
+		fi
+
+		`"$1" > "$BASE_DIR/cave/$2"`
 		if [[ $? != 0 ]]
 		then
 			alert "FAILED: $1 > $2"
@@ -104,6 +114,7 @@ then
 	do
 		logRITUAL
 		# check routine #
-		# iptables -L > firewallRules.txt#
+		# iptables -L > firewallRules.txt #
+		# who > loggedIN.txt #
 	done
 fi
