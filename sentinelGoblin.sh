@@ -7,8 +7,6 @@
 # Contact: leandro.schabarum@renovaretelecom.com.br        #
 ############################################################
 
-# BASE_DIR="/opt/sentinelGoblin"
-# `nohup bash "$BASE_DIR/sentinelGoblin.sh" > /dev/null 2>$1 &`
 
 if [[ "$(id -u)" == "0" ]]
 then
@@ -18,7 +16,6 @@ then
 	VENV_DIRNAME="venv"  # python virtual enviroment folder name
 	CONF_FILE="gold.conf"  # configuration file name
 	# ----------------------------------------------------------- #
-	echo "$! - sentinelGoblin.sh" > "$BASE_DIR/.sgpid"
 
 	function alert() {
 		echo "$1" | "$BASE_DIR/$VENV_DIRNAME/bin/python" "$BASE_DIR/teleAlerts.py"
@@ -94,8 +91,6 @@ then
 		fi
 	}
 
-	# filename_HASH=$(sha256sum "filename" | cut -d ' ' -f 1)
-
 	function checkSUMfile () {
 		# checkSUM "$HASH" "/path/filename" #
 		# True : changed | False : no changes     #
@@ -132,7 +127,7 @@ then
 		logRITUAL
 		# check routine #
 		# iptables -L > firewallRules.txt #
-		# who > LOGGED_IN.txt #
+		
 		OUTPUT=$(checkSUMcommand "$LOGGED_IN" "who")
 		if [ $? == 0 ]
 		then
