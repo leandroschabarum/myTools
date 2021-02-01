@@ -52,7 +52,7 @@ then
 		then
 			local SIZE=$(du --block=1 "$LOG_FILE" | cut -f 1)
 
-			if [[ SIZE >= 100000000 ]]
+			if (( SIZE > 100000000 ))
 			then
 				local COUNT=$(ls /var/log | grep "sentinelGoblin.log*" | wc -l)
 				mv "$LOG_FILE" "$LOG_FILE.$COUNT"
@@ -93,7 +93,7 @@ then
 		fi
 	}
 
-	filename_HASH=$(sha256sum "filename" | cut -d ' ' -f 1)
+	# filename_HASH=$(sha256sum "filename" | cut -d ' ' -f 1)
 
 	function checkSUMfile () {
 		# checkSUM filename_HASH "/path/filename" #
@@ -124,15 +124,15 @@ then
 	}
 
 
-	loggedIN=$(`who | sha256sum | cut -d ' ' -f 1`)
+	LOGGED_IN=$(who | sha256sum | cut -d ' ' -f 1)
 
 	while true
 	do
 		logRITUAL
 		# check routine #
 		# iptables -L > firewallRules.txt #
-		# who > loggedIN.txt #
-		if [ $(checkSUMcommand loggedIN "who") ]
+		# who > LOGGED_IN.txt #
+		if [ $(checkSUMcommand LOGGED_IN "who") ]
 		then
 			alert "test - access changes"
 		fi

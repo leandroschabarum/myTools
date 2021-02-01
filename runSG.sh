@@ -13,7 +13,7 @@ if [[ "$(id -u)" == "0" ]]
 then
 	BASE_DIR="/opt/sentinelGoblin"
 
-	`nohup bash "$BASE_DIR/sentinelGoblin.sh" > /dev/null 2>$1 &`
+	`nohup bash "$BASE_DIR/sentinelGoblin.sh" > "$BASE_DIR/.sgpid" 2>&1 &`
 	PID="$!"
 	if [[ $? == 0 ]]
 	then
