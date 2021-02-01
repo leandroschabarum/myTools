@@ -15,7 +15,7 @@ then
 
 	if [[ "$PID_FLAG" == "" ]]
 	then
-		nohup bash "$BASE_DIR/sentinelGoblin.sh" > "$BASE_DIR/.sgpid" 2>&1 &
+		nohup bash "$BASE_DIR/sentinelGoblin.sh" >> "$BASE_DIR/.sgpid" 2>&1 &
 		echo "/>_ nohup exit: $?" # DEBUG LINE
 		if [[ $? == 0 ]]
 		then
