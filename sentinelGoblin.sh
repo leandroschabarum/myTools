@@ -81,7 +81,7 @@ then
 			fi
 		fi
 
-		`"$1" > "$BASE_DIR/cave/$2"`
+		$1 > "$BASE_DIR/cave/$2"
 		if [[ $? != 0 ]]
 		then
 			alert "FAILED: $1 > $2"
