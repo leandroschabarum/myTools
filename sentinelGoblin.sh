@@ -91,6 +91,12 @@ then
 		fi
 	}
 
+	function dif() {
+		# dif "_new.txt" "_old.txt" #
+		echo "$(diff --changed-group-format='%<' --unchanged-group-format='' $1 $2)"
+		mv "$1" "$2"
+	}
+
 	function checkSUMfile () {
 		# checkSUM "$HASH" "/path/filename" #
 		# True : changed | False : no changes     #
@@ -121,8 +127,12 @@ then
 
 
 	LOGGED=$(who | sha256sum | cut -d ' ' -f 1)
+
 	FIREWALL=$(iptables -L | sha256sum | cut -d ' ' -f 1)
-	PORTS=$(sudo netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
+	genFILE "iptables -L" "firewall_old.txt"
+
+	OPENPORTS=$(netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
+	genFILE "netstat -tulpn | grep LISTEN" "openports_old.txt"
 
 	while true
 	do
@@ -139,15 +149,19 @@ then
 		HASH=$(checkSUMcommand "$FIREWALL" "iptables -L")
 		if [ $? == 0 ]
 		then
-			alert "Firewall rules were changed"
+			genFILE "iptables -L" "firewall_new.txt"
+			CHANGES=$(dif "firewall_new.txt" "firewall_old.txt")
+			alert "Firewall rules were changed:\n$CHANGES"
 			FIREWALL=$HASH
 		fi
 		
-		HASH=$(checkSUMcommand "$PORTS" "sudo netstat -tulpn | grep LISTEN")
+		HASH=$(checkSUMcommand "$OPENPORTS" "netstat -tulpn | grep LISTEN")
 		if [ $? == 0 ]
 		then
-			alert "Listening Ports changed"
-			PORTS=$HASH
+			genFILE "netstat -tulpn | grep LISTEN" "openports_new.txt"
+			CHANGES=$(dif "openports_new.txt" "openports_old.txt")
+			alert "Listening Ports changed:\n$CHANGES"
+			OPENPORTS=$HASH
 		fi
 
 		sleep 1
