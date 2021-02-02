@@ -53,8 +53,8 @@ then
 		fi
 	fi
 
-	#### creation of symlinks to sentinelGoblin files from informed source directory ####
-	read -p "......source directory />_ " sourcedir
+	# --- creation of symlinks to sentinelGoblin files from informed source directory --- #
+	read -p "............source directory />_ " sourcedir
 
 	if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]
 	then
@@ -63,10 +63,10 @@ then
 		then
 			echo "< no file $sourcedir/logoSG.txt found >" >> "$LOG_FILE"
 		else
-			#### Clears the screen to show ascii logo art ####
+			# --- Clears the screen to show ascii logo art --- #
 			clear
 			cat "$BASE_DIR/logoSG.txt"
-			##################################################
+			# ------------------------------------------------ #
 		fi
 
 		ln -s "$sourcedir/setupSG.sh" "$BASE_DIR"
@@ -87,10 +87,10 @@ then
 			echo "< no file $sourcedir/sentinelGoblin.sh found >" >> "$LOG_FILE"
 		fi
 	fi
-	#####################################################################################
+	# ----------------------------------------------------------------------------------- #
 
-	#### creation of symlinks to teleAlerts files from informed source directory ####
-	read -p "..teleAlerts directory />_ " alertsdir
+	# --- creation of symlinks to teleAlerts files from informed source directory --- #
+	read -p "........teleAlerts directory />_ " alertsdir
 
 	if [[ "$alertsdir" != "" && "$alertsdir" != "$(pwd)" ]]
 	then
@@ -106,7 +106,7 @@ then
 			echo "< no file $alertsdir/requirements.txt found >" >> "$LOG_FILE"
 		fi
 	fi
-	#################################################################################
+	# ------------------------------------------------------------------------------- #
 
 	`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt" > /dev/null 2>&1`
 	`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
@@ -136,10 +136,10 @@ then
 	echo "< information is being written to $BASE_DIR/$CONF_FILE >"
 	printf "[TELEGRAM_chat_info]\n" > "$BASE_DIR/$CONF_FILE"
 
-	read -p "....telegram bot Token />_ " token
+	read -p "..........telegram bot Token />_ " token
 	printf "token = %s\n" "$token" >> "$BASE_DIR/$CONF_FILE"
 
-	read -p "......telegram chat id />_ " chatid
+	read -p "............telegram chat id />_ " chatid
 	printf "chatid = %s\n" "$chatid" >> "$BASE_DIR/$CONF_FILE"
 
 	if [[ "$token" != "" && "$chatid" != "" ]]
@@ -151,7 +151,7 @@ then
 			echo "$NOW />_ UNABLE TO SEND TEST MESSAGE - setup failed" >> "$LOG_FILE"
 			exit 1
 		else
-			echo "< confirmation message sent >"
+			echo "<   confirmation message sent   >"
 		fi
 	else
 		echo "< telegram bot information can be altered later at $BASE_DIR/$CONF_FILE >"
@@ -162,8 +162,11 @@ then
 		echo "< sentinelGoblin.sh together with logoSG.txt, setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
 	fi
 
-	# add running sentinelGoblin command #
-	# add command to crontab with check for already running sentinelGoblin #
+	read -p "....run SentinelGoblin [y/n] />_ " confirmation
+	if [[ "$confirmation" == "y" ]]
+	then
+		bash "$BASE_DIR/runSG.sh"
+	fi
 
 	exit 0
 else
