@@ -56,7 +56,7 @@ then
 	# --- creation of symlinks to sentinelGoblin files from informed source directory --- #
 	read -p "............source directory />_ " sourcedir
 
-	if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]
+	if [[ "$sourcedir" != "" && "$sourcedir" != "$BASE_DIR" ]]
 	then
 		ln -s "$sourcedir/logoSG.txt" "$BASE_DIR"
 		if [[ $? != 0 ]]
@@ -92,7 +92,7 @@ then
 	# --- creation of symlinks to teleAlerts files from informed source directory --- #
 	read -p "........teleAlerts directory />_ " alertsdir
 
-	if [[ "$alertsdir" != "" && "$alertsdir" != "$(pwd)" ]]
+	if [[ "$alertsdir" != "" && "$alertsdir" != "$BASE_DIR" ]]
 	then
 		ln -s "$alertsdir/teleAlerts.py" "$BASE_DIR"
 		if [[ $? != 0 ]]
