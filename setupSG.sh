@@ -53,6 +53,14 @@ then
 		fi
 	fi
 
+	#### Clears the screen to show ascii logo art ####
+	if [[ -f "$BASE_DIR/logoSG.txt" ]]
+	then
+		clear
+		cat "$BASE_DIR/logoSG.txt"
+	fi
+	##################################################
+
 	read -p ".....source directory />_ " sourcedir
 
 	if [[ "$sourcedir" != "" && "$sourcedir" != "$(pwd)" ]]
