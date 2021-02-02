@@ -159,7 +159,7 @@ then
 
 	if [[ ! -f "$BASE_DIR/sentinelGoblin.sh" ]]
 	then
-		echo "< sentinelGoblin.sh together with setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
+		echo "< sentinelGoblin.sh together with logoSG.txt, setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
 	fi
 
 	# add running sentinelGoblin command #
