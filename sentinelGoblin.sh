@@ -92,9 +92,9 @@ then
 	}
 
 	function dif() {
-		# dif "_new.txt" "_old.txt" #
-		local TEMPDIF="$(diff --changed-group-format='%<' --unchanged-group-format='' $1 $2)"
-		mv "$BASE_DIR/cave/$1" "$BASE_DIR/cave/$2"
+		# dif "old.txt" "new.txt" #
+		local TEMPDIF="$(diff $1 $2)"
+		mv "$BASE_DIR/cave/$2" "$BASE_DIR/cave/$1"
 		echo "$TEMPDIF"
 	}
 
@@ -151,7 +151,7 @@ then
 		if [ $? == 0 ]
 		then
 			genFILE "iptables -L" "firewall_new.txt"
-			CHANGES=$(dif "firewall_new.txt" "firewall.txt")
+			CHANGES=$(dif "firewall.txt" "firewall_new.txt")
 			alert "Firewall rules were changed: $CHANGES"
 			FIREWALL=$HASH
 		fi
@@ -160,7 +160,7 @@ then
 		if [ $? == 0 ]
 		then
 			genFILE "netstat -tulpn | grep LISTEN" "openports_new.txt"
-			CHANGES=$(dif "openports_new.txt" "openports.txt")
+			CHANGES=$(dif "openports.txt" "openports_new.txt")
 			alert "Listening Ports changed: $CHANGES"
 			OPENPORTS=$HASH
 		fi
