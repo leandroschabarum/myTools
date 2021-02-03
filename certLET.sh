@@ -20,7 +20,8 @@ CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 1 */2 * sudo bash $CERT_DIR/certLE
 
 if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
 then
-	git clone "$GIT_REPO" > /dev/null 2>&1
+
+	git -q clone "$GIT_REPO" "$BASE_DIR" # > /dev/null 2>&1
 	if [ $? != 0 ]
 	then
 		echo "< CRITICAL - unable to clone git repository >"
@@ -41,14 +42,9 @@ then
 		ln -s "$(pwd)/logoLET.txt" "$CERT_DIR"
 	fi
 
-	# --- Clears the screen to show ascii logo art --- #
-	clear
-	cat "$CERT_DIR/logoLET.txt"
-	# ------------------------------------------------ #
-
 	if ! `crontab -l | grep -q "$CRON_JOB_TAG"`
 	then
-		read -p "/>_ would you like to add this job to crontab? [y/n]" cronAnswer
+		read -p "...would you like to add a renewal job to crontab? [y/n] />_ " cronAnswer
 		if [[ "$cronAnswer" == "y" ]]
 		then
 			crontab -l > "$CERT_DIR/.cronjobs"
