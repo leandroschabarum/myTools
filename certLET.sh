@@ -10,8 +10,8 @@
 
 DOMAIN_NAME="test.com"
 
-BASE_DIR="/opt/letsencrypt"
-CERT_DIR="/opt/letsencrypt-gencerts"
+BASE_DIR="/tmp/letsencrypt"
+CERT_DIR="/tmp/letsencrypt-gencerts"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
 
 CRON_TAG="# >>> DO NOT REMOVE THIS COMENT <<< Certificate renewal routine for $DOMAIN_NAME >>> DO NOT REMOVE THIS COMENT <<< #"
