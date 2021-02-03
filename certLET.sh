@@ -42,7 +42,8 @@ then
 		ln -s "$(pwd)/logoLET.txt" "$CERT_DIR"
 	fi
 
-	if ! `crontab -l | grep -q "$CRON_JOB_TAG"`
+	crontab -l | grep -q "$CRON_JOB_TAG"
+	if [ $? != 0 ]
 	then
 		read -p "...would you like to add a renewal job to crontab? [y/n] />_ " cronAnswer
 		if [[ "$cronAnswer" == "y" ]]
