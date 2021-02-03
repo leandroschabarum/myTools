@@ -43,7 +43,7 @@ then
 	fi
 
 	crontab -l | grep -q "$CRON_JOB_TAG"
-	if [ $? != 0 ]
+	if [[ $? != 0 ]]
 	then
 		read -p "...would you like to add a renewal job to crontab? [y/n] />_ " cronAnswer
 		if [[ "$cronAnswer" == "y" ]]
@@ -51,7 +51,7 @@ then
 			crontab -l > "$CERT_DIR/.cronjobs"
 			printf "\n$CRON_TAG\n$CRON_JOB\n" >> "$CERT_DIR/.cronjobs"
 			crontab "$CERT_DIR/.cronjobs"
-			if [ $? != 0 ]
+			if [[ $? != 0 ]]
 			then
 				echo "< WARNING - unable to add job >"
 			fi
