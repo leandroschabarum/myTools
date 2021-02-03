@@ -95,7 +95,13 @@ then
 		cp "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/fullchain.pem" "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/privkey.pem" "$CERT_DIR/"
 		if [[ $? == 0 ]]
 		then
-			`chown -R "$USER_GROUP" "$CERT_DIR"` && [ "$USER_GROUP" != "" ] || echo "< WARNING - unable to set ownership of $LETSENCRYPT_CERTDIR to $USER_GROUP >"
+			if [[ "$USER" != "" && "$GROUP" != "" ]]
+			then
+				if ! `chown -R "$USER:$GROUP" "$CERT_DIR"`
+				then
+					echo "< WARNING - unable to set ownership of $LETSENCRYPT_CERTDIR to $USER:$GROUP >"
+				fi
+			fi
 		else
 			echo "< WARNING - failed to copy certificate and private key from $LETSENCRYPT_CERTDIR/$MAIN_DOMAIN >"
 			exit 1
