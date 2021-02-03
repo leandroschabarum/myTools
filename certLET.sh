@@ -10,7 +10,8 @@
 
 MAIN_DOMAIN="-d test.com"
 OTHER_DOMAINS=""
-USER_GROUP="renovare:renovare"
+USER_GROUP=""
+APPLICATION=""
 
 # ------------ default install paths and folders ------------ #
 BASE_DIR="/tmp/letsencrypt"
@@ -60,6 +61,8 @@ then
 	fi
 fi
 
+BREAK_FLAG=0
+
 if [[ "$MAIN_DOMAIN" == "" ]]
 then
 	echo "< CRITICAL - no domain name informed >"
@@ -67,8 +70,20 @@ then
 elif [[ "$OTHER_DOMAINS" != "" ]]
 then
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS"`
+	if [[ $? != 0 ]]
+		BREAK_FLAG=1
+	then
 else
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN"`
+	if [[ $? != 0 ]]
+		BREAK_FLAG=1
+	then
+fi
+
+if [[ "$BREAK_FLAG" != "0" ]]
+then
+	echo "< CRITICAL - unable to generate certificate and private key >"
+	exit 1
 fi
 
 LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"  # default directory for LetsEncrypt certificates and private keys
@@ -89,4 +104,14 @@ then
 else
 	echo "< CRITICAL - unable to create copy of certificate and private key >"
 	exit 1
+fi
+
+sleep 1
+`systemctl is-active --quit "$APPLICATION"`
+if [[ $? != 0 ]]
+then
+	echo "< CRITICAL - service $APPLICATION is not active >"
+	exit 1
+else
+	exit 0
 fi
