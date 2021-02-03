@@ -39,11 +39,10 @@ then
 		NODIR_FLAG=0
 	else
 		ln -s "$(pwd)/certLET.sh" "$CERT_DIR"
-		ln -s "$(pwd)/logoLET.txt" "$CERT_DIR"
 	fi
 
-	crontab -l | grep -q "$CRON_JOB_TAG"
-	if [[ $? != 0 ]]
+	# `crontab -l | grep -q "$CRON_JOB_TAG" && echo 0 || echo 1`
+	if [[ "$(crontab -l | grep -q "$CRON_JOB_TAG" && echo 0 || echo 1)" != "0" ]]
 	then
 		read -p "...would you like to add a renewal job to crontab? [y/n] />_ " cronAnswer
 		if [[ "$cronAnswer" == "y" ]]
