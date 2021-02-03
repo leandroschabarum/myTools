@@ -8,13 +8,16 @@
 # Contact: leandro.schabarum@renovaretelecom.com.br            #
 ################################################################
 
-DOMAIN_NAME="test.com"
+MAIN_DOMAIN="-d test.com"
+OTHER_DOMAINS=""
+USER_GROUP="renovare:renovare"
 
+# ------------ default install paths and folders ------------ #
 BASE_DIR="/tmp/letsencrypt"
 CERT_DIR="/tmp/letsencrypt-gencerts"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
-
-CRON_TAG="# >>> DO NOT REMOVE THIS COMENT <<< Certificate renewal routine for $DOMAIN_NAME >>> DO NOT REMOVE THIS COMENT <<< #"
+# ----------------------------------------------------------- #
+CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $DOMAIN_NAME - DO NOT REMOVE THIS COMMENT #"
 CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 1 */2 * sudo bash $CERT_DIR/certLET.sh" || echo "0 1 1 */2 * bash $CERT_DIR/certLET.sh")
 
 
@@ -51,8 +54,39 @@ then
 			crontab "$CERT_DIR/.cronjobs"
 			if [[ $? != 0 ]]
 			then
-				echo "< WARNING - unable to add job >"
+				echo "< WARNING - unable to add job to crontab >"
 			fi
 		fi
 	fi
+fi
+
+if [[ "$MAIN_DOMAIN" == "" ]]
+then
+	echo "< CRITICAL - no domain name informed >"
+	exit 1
+elif [[ "$OTHER_DOMAINS" != "" ]]
+then
+	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS"`
+else
+	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN"`
+fi
+
+LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"  # default directory for LetsEncrypt certificates and private keys
+
+if [[ -d "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN" && "$CERT_DIR" ]]
+then
+	if [[ -f "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/privkey.pem" && -f "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/fullchain.pem" ]]
+	then
+		cp "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/fullchain.pem" "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/privkey.pem" "$CERT_DIR/"
+		if [[ $? == 0 ]]
+		then
+			`chown -R "$USER_GROUP" "$CERT_DIR"` && [ "$USER_GROUP" != "" ] || echo "< WARNING - unable to set ownership of $LETSENCRYPT_CERTDIR to $USER_GROUP >"
+		else
+			echo "< WARNING - failed to copy certificate and private key from $LETSENCRYPT_CERTDIR/$MAIN_DOMAIN >"
+			exit 1
+		fi
+	fi
+else
+	echo "< CRITICAL - unable to create copy of certificate and private key >"
+	exit 1
 fi
