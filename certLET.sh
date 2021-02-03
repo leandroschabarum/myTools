@@ -22,7 +22,7 @@ if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
 then
 
 	git clone "$GIT_REPO" "$BASE_DIR" > /dev/null 2>&1
-	if [ $? != 0 ]
+	if [[ $? != 0 ]]
 	then
 		echo "< CRITICAL - unable to clone git repository >"
 		exit 1
@@ -41,8 +41,7 @@ then
 		ln -s "$(pwd)/certLET.sh" "$CERT_DIR"
 	fi
 
-	# `crontab -l | grep -q "$CRON_JOB_TAG" && echo 0 || echo 1`
-	if [[ "$(crontab -l | grep -q $CRON_JOB_TAG && echo 0 || echo 1)" != "0" ]]
+	if ! `crontab -l | grep -q "$CRON_TAG"`
 	then
 		read -p "...would you like to add a renewal job to crontab? [y/n] />_ " cronAnswer
 		if [[ "$cronAnswer" == "y" ]]
