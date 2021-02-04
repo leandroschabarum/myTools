@@ -8,9 +8,10 @@
 # Contact: leandro.schabarum@renovaretelecom.com.br            #
 ################################################################
 
-MAIN_DOMAIN="-d test.com"
+MAIN_DOMAIN="-d bi.rnv.net.br"
 OTHER_DOMAINS=""
-USER_GROUP=""
+USER=""
+GROUP=""
 APPLICATION=""
 
 # ------------ default install paths and folders ------------ #
