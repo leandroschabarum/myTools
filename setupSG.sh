@@ -160,6 +160,24 @@ then
 	if [[ ! -f "$BASE_DIR/sentinelGoblin.sh" ]]
 	then
 		echo "< sentinelGoblin.sh together with .logoSG, setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
+		exit 1
+	fi
+
+	CRON_JOB="@reboot bash $BASE_DIR/runSG.sh"  # Default cron job for sentinelGoblin
+
+	if ! `crontab -l | grep -q "$CRON_JOB"`
+	then
+		read -p "...add a job to crontab in case of reboot? [y/n] />_ " cronAnswer
+		if [[ "$cronAnswer" == "y" ]]
+		then
+			crontab -l > "$BASE_DIR/.cronjobs"
+			printf "\n$CRON_JOB\n" >> "$BASE_DIR/.cronjobs"
+			crontab "$BASE_DIR/.cronjobs"
+			if [[ $? != 0 ]]
+			then
+				echo "< unable to add job to crontab >"
+			fi
+		fi
 	fi
 
 	read -p "....run SentinelGoblin [y/n] />_ " confirmation
