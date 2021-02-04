@@ -26,7 +26,7 @@ CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 15 */2 * sudo bash $CERT_DIR/certL
 if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
 then
 
-	git clone "$GIT_REPO" "$BASE_DIR" > /dev/null 2>&1
+	`git clone "$GIT_REPO" "$BASE_DIR" > /dev/null 2>&1`
 	if [[ $? != 0 ]]
 	then
 		echo "< CRITICAL - unable to clone git repository >"
@@ -74,14 +74,14 @@ then
 elif [[ "$OTHER_DOMAINS" != "" ]]
 then
 	`systemctl stop "$APPLICATION"`
-	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS"`
+	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS" > /dev/null 2>&1`
 	if [[ $? != 0 ]]
 	then
 		BREAK_FLAG=1
 	fi
 else
 	`systemctl stop "$APPLICATION"`
-	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN"`
+	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" > /dev/null 2>&1`
 	if [[ $? != 0 ]]
 	then
 		BREAK_FLAG=1
