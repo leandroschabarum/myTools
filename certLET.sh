@@ -14,8 +14,8 @@ USER_GROUP=""
 APPLICATION=""
 
 # ------------ default install paths and folders ------------ #
-BASE_DIR="/tmp/letsencrypt"
-CERT_DIR="/tmp/letsencrypt-gencerts"
+BASE_DIR="/opt/letsencrypt"
+CERT_DIR="/opt/letsencrypt-gencerts"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
 # ----------------------------------------------------------- #
 CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $DOMAIN_NAME - DO NOT REMOVE THIS COMMENT #"
@@ -42,7 +42,10 @@ then
 		echo "< WARNING - unable to make $CERT_DIR >"
 		NODIR_FLAG=0
 	else
-		ln -s "$(pwd)/certLET.sh" "$CERT_DIR"
+		if [[ "$(pwd)" != "$CERT_DIR" ]]
+		then
+			ln -s "$(pwd)/certLET.sh" "$CERT_DIR"
+		fi
 	fi
 
 	if ! `crontab -l | grep -q "$CRON_TAG"`
