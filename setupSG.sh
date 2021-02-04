@@ -109,9 +109,9 @@ then
 	# ------------------------------------------------------------------------------- #
 
 	`$BASE_DIR/$VENV_DIRNAME/bin/pip install -r "$BASE_DIR/requirements.txt" > /dev/null 2>&1`
-	`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/installed.txt"`
-	hash=$(sha256sum "$BASE_DIR/installed.txt" | cut -d ' ' -f 1)
-	rm -f "$BASE_DIR/installed.txt"
+	`$BASE_DIR/$VENV_DIRNAME/bin/pip freeze > "$BASE_DIR/.installed"`
+	hash=$(sha256sum "$BASE_DIR/.installed" | cut -d ' ' -f 1)
+	rm -f "$BASE_DIR/.installed"
 
 	if [[ "$hash" !=  "$(sha256sum "$BASE_DIR/requirements.txt"  | cut -d ' ' -f 1)" ]]
 	then
