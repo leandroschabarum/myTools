@@ -93,7 +93,7 @@ then
 	echo "< CRITICAL - unable to generate certificate and private key >"
 	`systemctl start "$APPLICATION"`
 	sleep 1
-	`systemctl is-active --quit "$APPLICATION"`
+	`systemctl is-active --quiet "$APPLICATION"`
 	if [[ $? != 0 ]]
 	then
 		echo "< CRITICAL - service $APPLICATION is not active >"
@@ -129,7 +129,7 @@ fi
 
 `systemctl start "$APPLICATION"`
 sleep 1
-`systemctl is-active --quit "$APPLICATION"`
+`systemctl is-active --quiet "$APPLICATION"`
 if [[ $? != 0 ]]
 then
 	echo "< CRITICAL - service $APPLICATION is not active >"
