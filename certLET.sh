@@ -76,14 +76,16 @@ then
 	`systemctl stop "$APPLICATION"`
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS"`
 	if [[ $? != 0 ]]
-		BREAK_FLAG=1
 	then
+		BREAK_FLAG=1
+	fi
 else
 	`systemctl stop "$APPLICATION"`
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN"`
 	if [[ $? != 0 ]]
-		BREAK_FLAG=1
 	then
+		BREAK_FLAG=1
+	fi
 fi
 
 if [[ "$BREAK_FLAG" != "0" ]]
