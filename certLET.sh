@@ -8,11 +8,11 @@
 # Contact: leandro.schabarum@renovaretelecom.com.br            #
 ################################################################
 
-MAIN_DOMAIN="-d bi.rnv.net.br"
+MAIN_DOMAIN="-d test.com"
 OTHER_DOMAINS=""
 USER=""
 GROUP=""
-APPLICATION=""
+APPLICATION="nginx"
 
 # ------------ default install paths and folders ------------ #
 BASE_DIR="/opt/letsencrypt"
