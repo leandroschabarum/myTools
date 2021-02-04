@@ -58,14 +58,14 @@ then
 
 	if [[ "$sourcedir" != "" && "$sourcedir" != "$BASE_DIR" ]]
 	then
-		ln -s "$sourcedir/logoSG.txt" "$BASE_DIR"
+		ln -s "$sourcedir/.logoSG" "$BASE_DIR"
 		if [[ $? != 0 ]]
 		then
-			echo "< no file $sourcedir/logoSG.txt found >" >> "$LOG_FILE"
+			echo "< no file $sourcedir/.logoSG found >" >> "$LOG_FILE"
 		else
 			# --- Clears the screen to show ascii logo art --- #
 			clear
-			cat "$BASE_DIR/logoSG.txt"
+			cat "$BASE_DIR/.logoSG"
 			# ------------------------------------------------ #
 		fi
 
@@ -159,7 +159,7 @@ then
 
 	if [[ ! -f "$BASE_DIR/sentinelGoblin.sh" ]]
 	then
-		echo "< sentinelGoblin.sh together with logoSG.txt, setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
+		echo "< sentinelGoblin.sh together with .logoSG, setupSG.sh and runSG.sh, need to be copied over to $BASE_DIR >"
 	fi
 
 	read -p "....run SentinelGoblin [y/n] />_ " confirmation
