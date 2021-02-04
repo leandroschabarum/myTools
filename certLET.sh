@@ -19,7 +19,7 @@ CERT_DIR="/tmp/letsencrypt-gencerts"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
 # ----------------------------------------------------------- #
 CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $DOMAIN_NAME - DO NOT REMOVE THIS COMMENT #"
-CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 1 */2 * sudo bash $CERT_DIR/certLET.sh" || echo "0 1 1 */2 * bash $CERT_DIR/certLET.sh")
+CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 15 */2 * sudo bash $CERT_DIR/certLET.sh" || echo "0 1 15 */2 * bash $CERT_DIR/certLET.sh")
 
 
 if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
