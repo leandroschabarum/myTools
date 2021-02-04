@@ -69,11 +69,13 @@ then
 	exit 1
 elif [[ "$OTHER_DOMAINS" != "" ]]
 then
+	`systemctl stop "$APPLICATION"`
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS"`
 	if [[ $? != 0 ]]
 		BREAK_FLAG=1
 	then
 else
+	`systemctl stop "$APPLICATION"`
 	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN"`
 	if [[ $? != 0 ]]
 		BREAK_FLAG=1
@@ -83,10 +85,17 @@ fi
 if [[ "$BREAK_FLAG" != "0" ]]
 then
 	echo "< CRITICAL - unable to generate certificate and private key >"
+	`systemctl start "$APPLICATION"`
+	sleep 1
+	`systemctl is-active --quit "$APPLICATION"`
+	if [[ $? != 0 ]]
+	then
+		echo "< CRITICAL - service $APPLICATION is not active >"
+	fi
 	exit 1
 fi
 
-LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"  # default directory for LetsEncrypt certificates and private keys
+LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"  # Default directory for LetsEncrypt certificates and private keys
 
 if [[ -d "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN" && "$CERT_DIR" ]]
 then
@@ -112,6 +121,7 @@ else
 	exit 1
 fi
 
+`systemctl start "$APPLICATION"`
 sleep 1
 `systemctl is-active --quit "$APPLICATION"`
 if [[ $? != 0 ]]
