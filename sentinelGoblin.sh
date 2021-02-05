@@ -69,7 +69,7 @@ then
 	}
 
 	function genFILE () {
-		# genFILE "command" "output.txt" #
+		# genFILE "command" "output_file" #
 		# True : ok | False : failed     #
 		if [[ ! -d "$BASE_DIR/cave" ]]
 		then
@@ -92,7 +92,7 @@ then
 	}
 
 	function dif() {
-		# dif "old.txt" "new.txt" #
+		# dif "old_file" "new_file" #
 		local TEMPDIF="$(diff $1 $2)"
 		mv "$BASE_DIR/cave/$2" "$BASE_DIR/cave/$1"
 		echo "$TEMPDIF"
@@ -130,10 +130,10 @@ then
 	LOGGED=$(who | sha256sum | cut -d ' ' -f 1)
 
 	FIREWALL=$(iptables -L | sha256sum | cut -d ' ' -f 1)
-	genFILE "iptables -L" "firewall.txt"
+	genFILE "iptables -L" "firewall"
 
 	OPENPORTS=$(netstat -tulpn | grep LISTEN | sha256sum | cut -d ' ' -f 1)
-	genFILE "netstat -tulpn | grep LISTEN" "openports.txt"
+	genFILE "netstat -tulpn | grep LISTEN" "openports"
 
 	while true
 	do
@@ -150,18 +150,24 @@ then
 		HASH=$(checkSUMcommand "$FIREWALL" "iptables -L")
 		if [ $? == 0 ]
 		then
-			genFILE "iptables -L" "firewall_new.txt"
-			CHANGES=$(dif "firewall.txt" "firewall_new.txt")
+			genFILE "iptables -L" "firewall_new"
+			CHANGES=$(dif "firewall" "firewall_new")
 			alert "Firewall rules were changed: $CHANGES"
+			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
+			echo "Firewall rules were changed: $CHANGES" >> /opt/sentinelGoblin/test.log
+			# ------------------------------------------------------------------------ #
 			FIREWALL=$HASH
 		fi
 		
 		HASH=$(checkSUMcommand "$OPENPORTS" "netstat -tulpn | grep LISTEN")
 		if [ $? == 0 ]
 		then
-			genFILE "netstat -tulpn | grep LISTEN" "openports_new.txt"
-			CHANGES=$(dif "openports.txt" "openports_new.txt")
+			genFILE "netstat -tulpn | grep LISTEN" "openports_new"
+			CHANGES=$(dif "openports" "openports_new")
 			alert "Listening Ports changed: $CHANGES"
+			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
+			echo "Listening Ports changed: $CHANGES" >> /opt/sentinelGoblin/test.log
+			# ------------------------------------------------------------------------ #
 			OPENPORTS=$HASH
 		fi
 
