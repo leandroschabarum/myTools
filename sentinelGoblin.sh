@@ -154,7 +154,7 @@ then
 			CHANGES=$(dif "firewall" "firewall_new")
 			alert "Firewall rules were changed: $CHANGES"
 			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
-			echo "Firewall rules were changed: $CHANGES" >> /opt/sentinelGoblin/test.log
+			printf "Firewall rules were changed: $CHANGES" >> /opt/sentinelGoblin/test.log
 			# ------------------------------------------------------------------------ #
 			FIREWALL=$HASH
 		fi
@@ -166,7 +166,7 @@ then
 			CHANGES=$(dif "openports" "openports_new")
 			alert "Listening Ports changed: $CHANGES"
 			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
-			echo "Listening Ports changed: $CHANGES" >> /opt/sentinelGoblin/test.log
+			printf "Listening Ports changed: $CHANGES" >> /opt/sentinelGoblin/test.log
 			# ------------------------------------------------------------------------ #
 			OPENPORTS=$HASH
 		fi
