@@ -94,7 +94,6 @@ then
 	function dif() {
 		# dif "old_file" "new_file" #
 		local TEMPDIF="$(diff $1 $2)"
-		echo "$TEMPDIF" >> /opt/sentinelGoblin/test.log  # DEBUG LINE
 		mv "$BASE_DIR/cave/$2" "$BASE_DIR/cave/$1"
 		echo "$TEMPDIF"
 	}
@@ -154,9 +153,6 @@ then
 			genFILE "iptables -L" "firewall_new"
 			CHANGES=$(dif "firewall" "firewall_new")
 			alert "Firewall rules were changed: $CHANGES"
-			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
-			# echo "Firewall rules were changed: $CHANGES" >> /opt/sentinelGoblin/test.log
-			# ------------------------------------------------------------------------ #
 			FIREWALL=$HASH
 		fi
 		
@@ -166,9 +162,6 @@ then
 			genFILE "netstat -tulpn | grep LISTEN" "openports_new"
 			CHANGES=$(dif "openports" "openports_new")
 			alert "Listening Ports changed: $CHANGES"
-			# ----------------------------  DEBUG  BLOCK  ---------------------------- #
-			# echo "Listening Ports changed: $CHANGES" >> /opt/sentinelGoblin/test.log
-			# ------------------------------------------------------------------------ #
 			OPENPORTS=$HASH
 		fi
 
