@@ -37,7 +37,7 @@ function mostRecentFile() {
 
         for file in `ls "$1" | grep "$2"`
         do
-                local mtime=$(stat "$file" | grep '^Modify:' | cut -d ' ' -f 2)
+                local mtime=$(stat "$1/$file" | grep '^Modify:' | cut -d ' ' -f 2)
 
                 if [[ `date +'%Y-%m-%d' --date="$mtime"` > "$lastDate" ]]
                 then
@@ -45,7 +45,7 @@ function mostRecentFile() {
                 fi
         done
 
-        return "$lastDate"
+        echo "$lastDate"
 }
 
 function removeOlderFiles() {
@@ -57,11 +57,11 @@ function removeOlderFiles() {
 
         for file in `ls "$3" | grep "$4"`
         do
-                local mtime=$(stat "$file" | grep '^Modify:' | cut -d ' ' -f 2)
+                local mtime=$(stat "$3/$file" | grep '^Modify:' | cut -d ' ' -f 2)
 
                 if [[ "$referenceDate" > `date +'%Y-%m-%d' --date="$mtime"` ]]
                 then
-                        if ! `echo "[ $mtime : $referenceDate ] />_ ( $3/$file )"`  # `rm -rf "$3/$file"`
+                        if ! echo "[ $mtime : $referenceDate ] />_ ( $3/$file )"  # `rm -rf "$3/$file"` #
                         then
                                 echo "<$(date)> unable to remove $3/$file" >> "$BASE_DIR/circular_backups/journal.log"
                         fi
