@@ -1,14 +1,14 @@
 #!/bin/bash
 
 ############## SCRIPT TO MANAGE BACKUP FILES ###############
-##############       RENOVARE  TELECOM       ###############
+############################################################
 # Created: Feb, 2020                                       #
 # Creator: Leandro Schabarum                               #
-# Contact: leandro.schabarum@renovaretelecom.com.br        #
+# Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
 
-BASE_DIR="/var/log"  # Default base directory for log folder
+BASE_DIR="/var/log"  # Base directory for log folder
 
 if [[ ! -d "$BASE_DIR/circular_backups" ]]
 then
@@ -61,7 +61,7 @@ function removeOlderFiles() {
 
                 if [[ "$referenceDate" > `date +'%Y-%m-%d' --date="$mtime"` ]]
                 then
-                        if ! echo "[ $mtime : $referenceDate ] />_ ( $3/$file )"  # `rm -rf "$3/$file"` #
+                        if ! rm -rf "$3/$file"
                         then
                                 echo "<$(date)> unable to remove $3/$file" >> "$BASE_DIR/circular_backups/journal.log"
                         fi

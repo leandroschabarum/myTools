@@ -2,24 +2,25 @@
 
 ################ SCRIPT FOR LETSENCRYPT CERTIFICATE ############
 ################     GENERATION AND RENEWAL JOB	    ############
-################          RENOVARE TELECOM          ############
 # Created: Feb, 2021                                           #
 # Creator: Leandro Schabarum                                   #
-# Contact: leandro.schabarum@renovaretelecom.com.br            #
+# Contact: leandroschabarum.98@gmail.com                       #
 ################################################################
 
-MAIN_DOMAIN="-d test.com"
-OTHER_DOMAINS=""
-USER=""
-GROUP=""
-APPLICATION="nginx"
+MAIN_DOMAIN="-d <domain_name>"
+# MAIN_DOMAIN has to be the domain name that LetsEncrypt uses to
+# create the certificates folder inside its /live directory
+OTHER_DOMAINS="-d <domain_name1> -d <domain_name2>"
+USER="<user>"
+GROUP="<group>"
+APPLICATION="<app>"
 
 # ------------ default install paths and folders ------------ #
 BASE_DIR="/opt/letsencrypt"
 CERT_DIR="/opt/letsencrypt-gencerts"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
 # ----------------------------------------------------------- #
-CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $DOMAIN_NAME - DO NOT REMOVE THIS COMMENT #"
+CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $MAIN_DOMAIN - DO NOT REMOVE THIS COMMENT #"
 CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 15 */2 * sudo bash $CERT_DIR/certLET.sh" || echo "0 1 15 */2 * bash $CERT_DIR/certLET.sh")
 
 
