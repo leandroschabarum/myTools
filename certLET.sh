@@ -16,38 +16,66 @@ GROUP="<group>"
 APPLICATION="<app>"
 
 # ------------ default install paths and folders ------------ #
-BASE_DIR="/opt/letsencrypt"
 CERT_DIR="/opt/letsencrypt-gencerts"
+BASE_DIR="/opt/letsencrypt"
+LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"
 GIT_REPO="https://github.com/letsencrypt/letsencrypt"
 # ----------------------------------------------------------- #
-CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $MAIN_DOMAIN - DO NOT REMOVE THIS COMMENT #"
+LIVE_FOLDER=$(echo $MAIN_DOMAIN | cut -d ' ' -f 2)
+CRON_TAG="# DO NOT REMOVE THIS COMMENT - Certificate renewal routine for $LIVE_FOLDER - DO NOT REMOVE THIS COMMENT #"
 CRON_JOB=$([ "$(id -u)" == "0" ] && echo "0 1 15 */2 * sudo bash $CERT_DIR/certLET.sh" || echo "0 1 15 */2 * bash $CERT_DIR/certLET.sh")
 
 
-if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
-then
-
-	`git clone "$GIT_REPO" "$BASE_DIR" > /dev/null 2>&1`
-	if [[ $? != 0 ]]
+function createLOG() {
+	if [[ ! -f "$CERT_DIR/certLET.log" ]]
 	then
-		echo "< CRITICAL - unable to clone git repository >"
-		exit 1
+		touch "$CERT_DIR/certLET.log"
+		if [[ $? != 0 ]]
+		then
+			echo "< CRITICAL - unable to create $CERT_DIR/certLET.log >"
+			exit 1
+		else
+			chmod 640 "$CERT_DIR/certLET.log"
+		fi
 	fi
-fi
+}
 
-NODIR_FLAG=1
+function logARCHIVE() {
+	if [[ -f "$CERT_DIR/certLET.log" ]]
+	then
+		local SIZE=$(du --block=1 "$CERT_DIR/certLET.log" | cut -f 1)
+
+		if (( SIZE > 10000000 ))
+		then
+			local COUNT=$(ls $CERT_DIR | grep "certLET.log*" | wc -l)
+			mv "$LOG_FILE" "$LOG_FILE.$COUNT"
+			if [[ $? == 0 ]]
+			then
+				createLOG
+				return 0
+			else
+				return 1
+			fi
+		fi
+	else
+		createLOG
+		return 1
+	fi
+}
+
 
 if [[ ! -d "$CERT_DIR" ]]
 then
 	if ! `mkdir -p "$CERT_DIR"`
 	then
 		echo "< WARNING - unable to make $CERT_DIR >"
-		NODIR_FLAG=0
 	else
 		if [[ "$(pwd)" != "$CERT_DIR" ]]
 		then
 			ln -s "$(pwd)/certLET.sh" "$CERT_DIR"
 		fi
+
+		createLOG
 	fi
 
 	if ! `crontab -l | grep -q "$CRON_TAG"`
@@ -60,73 +88,62 @@ then
 			crontab "$CERT_DIR/.cronjobs"
 			if [[ $? != 0 ]]
 			then
-				echo "< WARNING - unable to add job to crontab >"
+				echo "< WARNING - unable to add job to crontab >" >> "$CERT_DIR/certLET.log"
 			fi
 		fi
 	fi
 fi
 
-BREAK_FLAG=0
+logARCHIVE
+
+if [[ ! -d "$BASE_DIR" && ! -d "$BASE_DIR/.git" ]]
+then
+
+	`git clone "$GIT_REPO" "$BASE_DIR" >> "$CERT_DIR/certLET.log" 2>&1`
+	if [[ $? != 0 ]]
+	then
+		echo "< CRITICAL - unable to clone git repository >" >> "$CERT_DIR/certLET.log" 2>&1`
+		exit 1
+	fi
+fi
 
 if [[ "$MAIN_DOMAIN" == "" ]]
 then
-	echo "< CRITICAL - no domain name informed >"
+	echo "< CRITICAL - no domain name informed >" >> "$CERT_DIR/certLET.log"
 	exit 1
 elif [[ "$OTHER_DOMAINS" != "" ]]
 then
-	`systemctl stop "$APPLICATION"`
-	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" "$OTHER_DOMAINS" > /dev/null 2>&1`
-	if [[ $? != 0 ]]
-	then
-		BREAK_FLAG=1
-	fi
-else
-	`systemctl stop "$APPLICATION"`
-	`"$BASE_DIR/letsencrypt-auto" certonly --standalone "$MAIN_DOMAIN" > /dev/null 2>&1`
-	if [[ $? != 0 ]]
-	then
-		BREAK_FLAG=1
-	fi
-fi
-
-if [[ "$BREAK_FLAG" != "0" ]]
-then
-	echo "< CRITICAL - unable to generate certificate and private key >"
-	`systemctl start "$APPLICATION"`
+	`systemctl stop "$APPLICATION" > /dev/null 2>&1`
 	sleep 1
-	`systemctl is-active --quiet "$APPLICATION"`
-	if [[ $? != 0 ]]
-	then
-		echo "< CRITICAL - service $APPLICATION is not active >"
-	fi
-	exit 1
+	"$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN $OTHER_DOMAINS >> "$CERT_DIR/certLET.log"
+else
+	`systemctl stop "$APPLICATION" > /dev/null 2>&1`
+	sleep 1
+	"$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN >> "$CERT_DIR/certLET.log"
 fi
 
-LETSENCRYPT_CERTDIR="/etc/letsencrypt/live"  # Default directory for LetsEncrypt certificates and private keys
 
-if [[ -d "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN" && "$CERT_DIR" ]]
+if [[ -d "$LETSENCRYPT_CERTDIR/$LIVE_FOLDER" && -d "$CERT_DIR" ]]
 then
-	if [[ -f "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/privkey.pem" && -f "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/fullchain.pem" ]]
+	cp "$LETSENCRYPT_CERTDIR/$LIVE_FOLDER/cert.pem" "$LETSENCRYPT_CERTDIR/$LIVE_FOLDER/privkey.pem" "$LETSENCRYPT_CERTDIR/$LIVE_FOLDER/fullchain.pem" "$CERT_DIR/."
+	if [[ $? == 0 ]]
 	then
-		cp "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/fullchain.pem" "$LETSENCRYPT_CERTDIR/$MAIN_DOMAIN/privkey.pem" "$CERT_DIR/"
-		if [[ $? == 0 ]]
+		if [[ "$USER" != "" && "$GROUP" != "" ]]
 		then
-			if [[ "$USER" != "" && "$GROUP" != "" ]]
+			if ! `chown -R "$USER:$GROUP" "$CERT_DIR"`
 			then
-				if ! `chown -R "$USER:$GROUP" "$CERT_DIR"`
-				then
-					echo "< WARNING - unable to set ownership of $LETSENCRYPT_CERTDIR to $USER:$GROUP >"
-				fi
+				echo "< WARNING - unable to set ownership of $LETSENCRYPT_CERTDIR to $USER:$GROUP >" >> "$CERT_DIR/certLET.log"
 			fi
-		else
-			echo "< WARNING - failed to copy certificate and private key from $LETSENCRYPT_CERTDIR/$MAIN_DOMAIN >"
-			exit 1
 		fi
+	else
+		echo "< WARNING - failed to copy certificate and private key from $LETSENCRYPT_CERTDIR/$LIVE_FOLDER >" >> "$CERT_DIR/certLET.log"
+		exit 1
 	fi
 else
-	echo "< CRITICAL - unable to create copy of certificate and private key >"
+	echo "< CRITICAL - unable to find $LETSENCRYPT_CERTDIR/$LIVE_FOLDER >" >> "$CERT_DIR/certLET.log"
 	exit 1
 fi
+
 
 `systemctl start "$APPLICATION"`
 sleep 1
