@@ -1,11 +1,13 @@
-import hashlib
+import hashlib, sys
 
-filename = input("[ inform file path ] />_ ")
-sha256_hash = hashlib.sha256()
+file_path = input("[ inform file path ] />_ ")
+SHA256hash = hashlib.sha256()
 
-with open(filename, 'rb') as file:
+with open(file_path, 'rb') as file:
 
-	for byte_block in iter(lambda: file.read(4096), b''):
-		sha256_hash.update(byte_block)
+	for block in iter(lambda: file.read(4096), bytes()):
+		SHA256hash.update(block)
 
-	print("\n{}\t{}".format(sha256_hash.hexdigest(), filename))
+	print("\n{}\t{}".format(SHA256hash.hexdigest(), file_path))
+
+sys.exit(0)

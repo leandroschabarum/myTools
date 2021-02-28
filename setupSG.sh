@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ############# SCRIPT FOR sentinelGoblin SETUP ##############
-#############        RENOVARE  TELECOM        ##############
+############################################################
 # Created: Jan, 2021                                       #
 # Creator: Leandro Schabarum                               #
-# Contact: leandro.schabarum@renovaretelecom.com.br        #
+# Contact: leandroschabarum.98@gmail.com                   #
 ############################################################
 
 if [[ "$(id -u)" == "0" ]]
