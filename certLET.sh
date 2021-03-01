@@ -102,7 +102,7 @@ then
 	`git clone "$GIT_REPO" "$BASE_DIR" >> "$CERT_DIR/certLET.log" 2>&1`
 	if [[ $? != 0 ]]
 	then
-		echo "< CRITICAL - unable to clone git repository >" >> "$CERT_DIR/certLET.log" 2>&1`
+		echo "< CRITICAL - unable to clone git repository >" >> "$CERT_DIR/certLET.log" 2>&1
 		exit 1
 	fi
 fi
@@ -115,11 +115,11 @@ elif [[ "$OTHER_DOMAINS" != "" ]]
 then
 	`systemctl stop "$APPLICATION" > /dev/null 2>&1`
 	sleep 1
-	"$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN $OTHER_DOMAINS >> "$CERT_DIR/certLET.log"
+	echo "E" | "$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN $OTHER_DOMAINS >> "$CERT_DIR/certLET.log"
 else
 	`systemctl stop "$APPLICATION" > /dev/null 2>&1`
 	sleep 1
-	"$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN >> "$CERT_DIR/certLET.log"
+	echo "E" | "$BASE_DIR/letsencrypt-auto" certonly --standalone $MAIN_DOMAIN >> "$CERT_DIR/certLET.log"
 fi
 
 
