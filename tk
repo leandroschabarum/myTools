@@ -1,0 +1,65 @@
+#!/bin/bash
+
+#############################################################
+#### Script to keep records of commands and their output ####
+#############################################################
+
+Help()
+{
+	cat <<- EOF >&1
+	Usage:
+	 $(basename "$0") [OPTIONS] -c <command>
+ 
+	Options:
+	 -o <file>	Output file
+	 -h|--help	Displays help information
+ 
+	           !!! ATTENTION !!!
+	 Option -c MUST ALWAYS be the last one
+	EOF
+}
+
+[[ "$1" =~ ^(-h|--help)$ ]] && Help && exit 0
+
+N=0 # Argument index
+
+while getopts ':o:c' option
+do
+	case "${option}" in
+		o )
+		N=$((N+=2))
+		FILEPATH="${OPTARG//\ /}"
+		;;
+
+		c )
+		N=$((N+=2))
+		COMMAND="${*:$N:$#}"
+		;;
+	
+		\? ) # Invalid option
+		echo "[ ERROR ] Invalid option ${1}"
+		Help
+		exit 1
+		;;
+	esac
+done
+
+if [[ -z "$COMMAND" ]]
+then
+	echo "[ ERROR ] No command was passed in to -c option"
+	exit 1
+fi
+
+if ! command -v "${COMMAND%% *}" > /dev/null
+then
+	echo "[ ERROR ] Command ${COMMAND%% *} was not found"
+	exit 1
+fi
+
+cat << EOF >> "${FILEPATH:="${COMMAND%% *}.out"}"
+$(date +'### [%Y-%m-%d %H:%M:%S]')    ${COMMAND}
+$(bash -c "${COMMAND}" 2>&1)
+
+EOF
+
+exit 0
