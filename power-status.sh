@@ -1,11 +1,11 @@
 #!/bin/bash
 
 BATTERY="BAT0"
-FILESYSTEM="/sys/class/power_supply/${BATTERY:?'ERROR: Battery device not set'}"
+SYS_FILE="/sys/class/power_supply/${BATTERY:?'ERROR: Battery device not set'}"
 LOG_FILE="/var/log/power.log"
 
-STATUS="$(cat "${FILESYSTEM:?'ERROR: Filesystem dir not set'}/status")"
-CHARGE="$(cat "${FILESYSTEM:?'ERROR: Filesystem dir not set'}/capacity")"
+STATUS="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/status")"
+CHARGE="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/capacity")"
 
 # Missing
 
@@ -42,14 +42,17 @@ case "${STATUS:?'WARN: Status not set'}" in
 		;;
 	Charging)
 		echo -e "[On AC power] Battery is charging ( ${CHARGE:-###}% )"
+		sendAlert("[On AC power] Battery is charging ( ${CHARGE:-###}% )")
 		exit 0
 		;;
 	Discharging)
 		echo -e "[On Battery power] Battery is discharging ( ${CHARGE:-###}% )"
+		sendAlert("[On Battery power] Battery is discharging ( ${CHARGE:-###}% )")
 		exit 1
 		;;
 	*) # DEFAULT
 		echo -e "[Action required] Unknown power state"
+		sendAlert("[Action required] Unknown power state")
 		exit 1
 		;;
 esac
