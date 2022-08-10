@@ -1,13 +1,47 @@
 #!/bin/bash
 
-BATTERY="BAT0"
+Help() {
+	cat <<- EOF >&1
+	Display information about the server's power supply.
+	$(basename "$0") [OPTIONS]
+	-b|--bat	(required)	Battery device identifier
+	-c|--cfg	(required)	Configuration file
+	-h|--help	(optional)	Display help information
+	EOF
+}
+
+while [[ "$1" =~ ^(-|--) ]]
+do
+	case $1 in
+		-b | --bat )
+			shift # Shift when option has an argument
+			BATTERY="${1:?'WARN: Missing battery device'}"
+			;;
+
+		-c | --cfg )
+			shift # Shift when option has an argument
+			CFG_FILE="${1:?'WARN: Missing configuration file'}"
+			;;
+
+		-h | --help ) # Display the help information
+			Help
+			exit 0
+			;;
+
+		* ) # Default
+			echo "ERROR: Invalid option" >&2
+			Help
+			exit 1
+			;;
+	esac
+	shift # Advance to the next option
+done
+
 SYS_FILE="/sys/class/power_supply/${BATTERY:?'ERROR: Battery device not set'}"
 LOG_FILE="/var/log/power.log"
 
 STATUS="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/status")"
 CHARGE="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/capacity")"
-
-# Missing
 
 sendAlert() {
 	# 'token' and 'chatid' variables come from configuration file
@@ -42,17 +76,17 @@ case "${STATUS:?'WARN: Status not set'}" in
 		;;
 	Charging)
 		echo -e "[On AC power] Battery is charging ( ${CHARGE:-###}% )"
-		sendAlert("[On AC power] Battery is charging ( ${CHARGE:-###}% )")
+		#sendAlert("[On AC power] Battery is charging ( ${CHARGE:-###}% )")
 		exit 0
 		;;
 	Discharging)
 		echo -e "[On Battery power] Battery is discharging ( ${CHARGE:-###}% )"
-		sendAlert("[On Battery power] Battery is discharging ( ${CHARGE:-###}% )")
+		#sendAlert("[On Battery power] Battery is discharging ( ${CHARGE:-###}% )")
 		exit 1
 		;;
 	*) # DEFAULT
 		echo -e "[Action required] Unknown power state"
-		sendAlert("[Action required] Unknown power state")
+		#sendAlert("[Action required] Unknown power state")
 		exit 1
 		;;
 esac
