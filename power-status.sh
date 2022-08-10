@@ -12,7 +12,7 @@ Help() {
 
 while [[ "$1" =~ ^(-|--) ]]
 do
-	case $1 in
+	case "$1" in
 		-b | --bat )
 			shift # Shift when option has an argument
 			BATTERY="${1:?'WARN: Missing battery device'}"
@@ -28,7 +28,7 @@ do
 			exit 0
 			;;
 
-		* ) # Default
+		* ) # DEFAULT
 			echo "ERROR: Invalid option" >&2
 			Help
 			exit 1
@@ -37,17 +37,29 @@ do
 	shift # Advance to the next option
 done
 
-SYS_FILE="/sys/class/power_supply/${BATTERY:?'ERROR: Battery device not set'}"
-LOG_FILE="/var/log/power.log"
+if [[ -r "{$CFG_FILE:?'ERROR: Configuration file not set'}" ]]
+then
+	# Configuration file must contain:
+	#	token
+	#	chatid
+	#	log
+	source "$CFG_FILE"
 
+	if [[ -z "${token}" || -z "${chatid}" || -z "${log}" ]]
+	then
+		echo "ERROR: Missing required configuration parameters"
+		exit 1
+	fi
+else
+	echo "ERROR: Unable to find/read configuration file"
+	exit 1
+fi
+
+SYS_FILE="/sys/class/power_supply/${BATTERY:?'ERROR: Battery device not set'}"
 STATUS="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/status")"
 CHARGE="$(cat "${SYS_FILE:?'ERROR: Filesystem dir not set'}/capacity")"
 
 sendAlert() {
-	# 'token' and 'chatid' variables come from configuration file
-	# in cases when they are not set skip function execution
-	[[ -z "${token}" || -z "${chatid}" ]] && return 1
-
 	local MSG RESPONSE
 	# expected positional argument check and message composition
 	read -r -d '' MSG <<- EOF
@@ -65,7 +77,7 @@ sendAlert() {
 
 	# if no {"ok":true} response is received, defaults to returning failed notication status
 	[[ "$(echo "${RESPONSE:='empty'}" | grep -o -E '"ok":( +)?[[:alnum:]]+[^,]' | cut -d ':' -f 2)" =~ true ]] && return 0
-	echo "$(date +"[%Y-%m-%d %H:%M:%S]") Failed to send Telegram notification <${RESPONSE:='empty'}>" >> "${LOG_FILE:?'ERROR: Log file not set'}" && return 1
+	echo "$(date +"[%Y-%m-%d %H:%M:%S]") Failed to send Telegram notification <${RESPONSE:='empty'}>" >> "${log}" && return 1
 }
 
 # Evaluates current host power state
@@ -90,4 +102,3 @@ case "${STATUS:?'WARN: Status not set'}" in
 		exit 1
 		;;
 esac
-
