@@ -157,11 +157,11 @@ case "${STATUS:?'WARN: Status not set'}" in
 		exit 0
 		;;
 	*) # DEFAULT
-		logger "[Action required] Unknown power state"
+		logger "[Action required] Unknown power state ( ${STATUS:-???} @ ${CHARGE:-###}% )"
 
 		if (( $PWRSPLY != 3 ))
 		then
-			sendAlert "&#10071; [Action required] Unknown power state"
+			sendAlert "&#10071; [Action required] Unknown power state ( ${STATUS:-???} @ ${CHARGE:-###}% )"
 		fi
 
 		echo "PWRSPLY=3" > /tmp/pwrsply
