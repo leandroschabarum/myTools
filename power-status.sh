@@ -1,41 +1,70 @@
 #!/bin/bash
 
+#### SCRIPT TO FIND PUBLIC IP INFORMATION ####
+# Created: May, 2022
+# Creator: Leandro Schabarum
+# Contact: leandroschabarum.98@gmail.com
+##############################################
+# Exit codes:
+# 0 - Successfully executed script
+# 1 - Execution failed (Generic)
+# 2 - Missing required dependencies
+##############################################
+
 Help() {
 	cat <<- EOF >&1
-	Display information about the server's power supply.
 	$(basename "$0") [OPTIONS]
-	-b|--bat	(required)	Battery device identifier
-	-c|--cfg	(required)	Configuration file
-	-h|--help	(optional)	Display help information
+	Display information about the server's power supply.
+
+	-b | --bat <dev>     (required)  Battery device identifier.
+	-c | --cfg <path>    (required)  Configuration file.
+	-h | --help          (optional)  Display help information.
 	EOF
 }
 
-# Parse command line options
+Dependencies() {
+	local DEPENDENCY
+
+	for DEPENDENCY in "$@"
+	do
+		if ! command -v "$DEPENDENCY" > /dev/null 2>&1
+		then
+			echo "CRITICAL: Missing '$DEPENDENCY' - Install it first!" >&2
+			exit 2
+		fi
+	done
+}
+
+# Ensure the required dependencies are installed
+Dependencies "curl"
+
 while [[ "$1" =~ ^(-|--) ]]
 do
 	case "$1" in
 		-b | --bat )
-			shift # Shift when option has an argument
-			BATTERY="${1:?'WARN: Missing battery device'}"
+			shift
+			BATTERY="${1:?'ERROR: Missing battery device'}"
 			;;
 
 		-c | --cfg )
-			shift # Shift when option has an argument
-			CFG_FILE="${1:?'WARN: Missing configuration file'}"
+			shift
+			CFG_FILE="${1:?'ERROR: Missing configuration file'}"
 			;;
 
-		-h | --help ) # Display the help information
+		-h | --help ) # Displays help information
 			Help
 			exit 0
 			;;
 
 		* ) # DEFAULT
-			echo "ERROR: Invalid option" >&2
+			echo "ERROR: Invalid script option" >&2
 			Help
 			exit 1
 			;;
 	esac
-	shift # Advance to the next option
+
+	# Discard option after processing it
+	shift
 done
 
 # Validate configuration file parameters
@@ -50,19 +79,12 @@ then
 
 	if [[ -z "${token}" || -z "${chatid}" || -z "${log}" || -z "${limit}" ]]
 	then
-		echo "ERROR: Missing required configuration parameters"
+		echo "ERROR: Missing required configuration parameters" >&2
 		exit 1
 	fi
 else
-	echo "ERROR: Unable to find/read configuration file"
+	echo "ERROR: Unable to find/read configuration file" >&2
 	exit 1
-fi
-
-# Check curl dependency for alerts
-if ! command -v curl > /dev/null 2>&1
-then
-        echo "ERROR: Missing curl dependency" >&2
-        exit 1
 fi
 
 # Retrieve battery status and charge level from sys filesystem
@@ -115,7 +137,7 @@ fi
 
 # Evaluates current host power state
 case "${STATUS:?'WARN: Status not set'}" in
-	Full)
+	Full )
 		if (( $PWRSPLY > 0 ))
 		then
 			logger "[On AC power] Battery is fully charged"
@@ -125,7 +147,7 @@ case "${STATUS:?'WARN: Status not set'}" in
 		echo "PWRSPLY=0" > /tmp/pwrsply
 		exit 0
 		;;
-	Charging)
+	Charging )
 		logger "[On AC power] Battery is charging ( ${CHARGE:-###}% )"
 
 		if (( $PWRSPLY > 1 ))
@@ -136,7 +158,7 @@ case "${STATUS:?'WARN: Status not set'}" in
 		echo "PWRSPLY=1" > /tmp/pwrsply
 		exit 0
 		;;
-	Discharging)
+	Discharging )
 		logger "[On battery power] Battery is discharging ( ${CHARGE:-###}% )"
 
 		if (( ${CHARGE:-100} <= $limit ))
@@ -156,7 +178,7 @@ case "${STATUS:?'WARN: Status not set'}" in
 		echo "PWRSPLY=2" > /tmp/pwrsply
 		exit 0
 		;;
-	*) # DEFAULT
+	* ) # DEFAULT
 		logger "[Action required] Unknown power state ( ${STATUS:-???} @ ${CHARGE:-###}% )"
 
 		if (( $PWRSPLY != 3 ))

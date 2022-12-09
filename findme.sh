@@ -16,10 +16,10 @@ Help() {
 	$(basename "$0") [OPTIONS]
 	Display information about your geographic IP location.
 
-	-a | --all	   (optional)  Fully formatted (Long).
-	-s | --simple	   (optional)  Simplified format (Short).
-	-r | --raw	   (optional)  Complete JSON formatted output.
-	-h | --help	   (optional)  Displays help information.
+	-a | --all       (optional)  Fully formatted (Long).
+	-s | --simple    (optional)  Simplified format (Short).
+	-r | --raw       (optional)  Complete JSON formatted output.
+	-h | --help      (optional)  Displays help information.
 	EOF
 }
 
