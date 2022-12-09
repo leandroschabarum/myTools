@@ -38,21 +38,21 @@ Dependencies() {
 Dependencies "rsync"
 
 # Process user input when running script
-while getopts o:h OPT
+while getopts 'o:h' OPT
 do
 	case "${OPT}" in
-		o) # Output destination target
+		o ) # Output destination target
 			TARGET="${OPTARG:?'ERROR: Missing backup output destination'}"
 			# Discard option value after processing it
 			shift
 			;;
 
-		h) # Displays help information
+		h ) # Displays help information
 			Help
 			exit 0
 			;;
 
-		\?) # Invalid option
+		\? ) # Invalid option
 			echo "ERROR: Invalid script option" >&2
 			Help
 			exit 1
@@ -74,3 +74,5 @@ DATE="$(date +'%F-%R')" # Equivalent to date +'%Y-%m-%d_%H:%M'
 
 #$RSYNC -arbv --backup-dir=.old/$DATE --delete $SOURCES $TARGET >> "$DATE.log"
 $RSYNC -arb --backup-dir=.old/$DATE --delete $SOURCES $TARGET
+
+exit 0

@@ -1,56 +1,66 @@
 #!/bin/bash
 
-################ SCRIPT TO CLEAR CACHE ################
-# Created: Mar, 2020                                  #
-# Creator: Leandro Schabarum                          #
-# Contact: leandroschabarum.98@gmail.com              #
-#######################################################
+############ SCRIPT TO CLEAR CACHE ############
+# Created: Mar, 2020
+# Creator: Leandro Schabarum
+# Contact: leandroschabarum.98@gmail.com
+###############################################
+# Exit codes:
+# 0 - Successfully executed script
+# 1 - Execution failed (Generic)
+###############################################
 
 Help() {
 	cat <<- EOF >&1
-	Utility to clear memory cache.
 	$(basename "$0") [OPTIONS]
-	-p	clears only PageCache
-	-i	clears only Dentries and Inodes
-	-a	clears all PageCache, Dentries and Inodes
-	-h	displays help information
+	Utility script to clear memory cache.
+
+	-p    (optional)  Clears only PageCache.
+	-i    (optional)  Clears only Dentries and Inodes.
+	-a    (optional)  Clears all PageCache, Dentries and Inodes.
+	-h    (optional)  Displays help information.
 	EOF
 }
 
-while getopts ":c:i:a:h" opt
+while getopts "ciah" OPT
 do
-	case "${opt}" in
-		c)
+	case "${OPT}" in
+		c )
 			FLAG=1
 			;;
-		i)
+		i )
 			FLAG=2
 			;;
-		a)
+		a )
 			FLAG=3
 			;;
-		h)
+		h ) # Displays help information
 			Help
 			exit 0
 			;;
-		\?)
-			echo "Invalid option!"
+		\? ) # Invalid option
+			echo "ERROR: Invalid script option" >&2
 			Help
 			exit 1
 			;;
 	esac
 done
 
-if [[ $(id -u) -eq 0 ]]
+# Ensure script is executed with root privileges
+if [[ $(id -u) -ne 0 ]]
 then
-	if [[ $FLAG -eq 1 || $FLAG -eq 2 || $FLAG -eq 3 ]]
-	then
-		sync
-		echo $FLAG > /proc/sys/vm/drop_caches
-		echo "Done"
-	fi
-else
-	echo "Requires sudo privileges to run" && exit 1
+	echo "ERROR: Requires sudo privileges to run" >&2
+	exit 1
+fi
+
+# Ensure default values after processing input
+FLAG=${FLAG:?'ERROR: Missing cache type option'}
+
+if [[ $FLAG -eq 1 || $FLAG -eq 2 || $FLAG -eq 3 ]]
+then
+	sync
+	echo $FLAG > /proc/sys/vm/drop_caches
+	echo "SUCCESS: Caches dropped" >&1
 fi
 
 exit 0

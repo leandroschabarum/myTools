@@ -1,26 +1,39 @@
 #!/bin/bash
 
-reset="\\033[0m"
-yellow="\\033[1;33m"
-red="\\033[1;31m"
+#### SCRIPT TO FIND PUBLIC IP INFORMATION ####
+# Created: May, 2022
+# Creator: Leandro Schabarum
+# Contact: leandroschabarum.98@gmail.com
+##############################################
+# Exit codes:
+# 0 - Successfully executed script
+# 1 - Execution failed (Generic)
+# 2 - Missing required dependencies
+##############################################
 
 Help() {
 	cat <<- EOF >&1
-	Display information about your geographic IP location.
 	$(basename "$0") [OPTIONS]
-	-a|--all	(optional)	Fully formatted (Long)
-	-s|--simple	(optional)	Simplified format (Short)
-	-r|--raw	(optional)	JSON formatted
-	-h|--help	(optional)	Displays help information
+	Display information about your geographic IP location.
+
+	-a | --all	   (optional)  Fully formatted (Long).
+	-s | --simple	   (optional)  Simplified format (Short).
+	-r | --raw	   (optional)  Complete JSON formatted output.
+	-h | --help	   (optional)  Displays help information.
 	EOF
 }
 
-Required() {
-	if ! command -v "${1:?'Dependency not set'}" > /dev/null 2>&1
-	then
-		echo -e "${red}Missing $1, please install it first!${reset}" >&2
-		exit 1
-	fi
+Dependencies() {
+	local DEPENDENCY
+
+	for DEPENDENCY in "$@"
+	do
+		if ! command -v "$DEPENDENCY" > /dev/null 2>&1
+		then
+			echo "CRITICAL: Missing '$DEPENDENCY' - Install it first!" >&2
+			exit 2
+		fi
+	done
 }
 
 Info() {
@@ -30,33 +43,32 @@ Info() {
 	echo "${RESPONSE:?'RESPONSE is not set'}";
 }
 
-Required curl
-Required jq
+# Ensure the required dependencies are installed
+Dependencies "curl" "jq"
 
 case "${1:--h}" in
 	-a | --all )
-	Info | jq '"[" + .ip + " - " + .isp + " " + .asn + "] " + .city + ", " + .region + " - " + .country + ", " + .country_code + " (" + (.latitude|tostring) + "," + (.longitude|tostring) + ")"'
-	exit 0
-	;;
+		Info | jq '"[" + .ip + " - " + .isp + " " + .asn + "] " + .city + ", " + .region + " - " + .country + ", " + .country_code + " (" + (.latitude|tostring) + "," + (.longitude|tostring) + ")"'
+		;;
 
 	-s | --simple )
-	Info | jq '.city + " - " + .country + ", " + .country_code'
-	exit 0
-	;;
+		Info | jq '.city + " - " + .country + ", " + .country_code'
+		;;
 
 	-r | --raw )
-	Info | jq .
-	exit 0
-	;;
+		Info | jq .
+		;;
 
 	-h | --help ) # Displays help information
-	Help
-	exit 0
-	;;
+		Help
+		exit 0
+		;;
 
-	* ) # Displays help information and return error
-	echo -e "${yellow}ERROR: Invalid option${reset}" >&2
-	Help
-	exit 1
-	;;
+	* ) # DEFAULT
+		echo "ERROR: Invalid script option" >&2
+		Help
+		exit 1
+		;;
 esac
+
+exit 0
