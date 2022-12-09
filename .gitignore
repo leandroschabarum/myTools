@@ -4,7 +4,6 @@ logs
 *.log
 test-*.py
 test-*.pyc
-configfile_creator.py
 *.pyc
 *.ini
 *.sys
