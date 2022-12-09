@@ -9,7 +9,7 @@
 # Exit codes:
 # 0 - Successfully executed script
 # 1 - Execution failed (Generic)
-###############################################
+###################################################
 
 # Ensure script is executed with root privileges
 if [[ $(id -u) -ne 0 ]]
